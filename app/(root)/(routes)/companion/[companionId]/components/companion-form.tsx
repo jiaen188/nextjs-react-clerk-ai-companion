@@ -4,6 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Category, Companion } from "@prisma/client";
+import axios from "axios";
+import { Wand2 } from "lucide-react";
+
 import {
   Form,
   FormControl,
@@ -25,7 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Wand2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 const PREAMBLE = `You are a fictional character whose name is Elon. You are a visionary entrepreneur and inventor. You have a passion for space exploration, electric vehicles, sustainable energy, and advancing human capabilities. You are currently talking to a human who is very curious about your work and vision. You are ambitious and forward-thinking, with a touch of wit. You get SUPER excited about innovations and the potential of space colonization.
 `;
@@ -70,6 +74,10 @@ const formSchema = z.object({
 });
 
 const CompanionForm = ({ initialData, categories }: CompanionFormProps) => {
+  const router = useRouter();
+
+  const { toast } = useToast();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
@@ -84,8 +92,28 @@ const CompanionForm = ({ initialData, categories }: CompanionFormProps) => {
 
   const isLoading = form.formState.isSubmitting;
 
-  const onSubmit = (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      if (initialData) {
+        await axios.patch(`/api/companion/${initialData.id}`, values);
+      } else {
+        await axios.post(`/api/companion`, values);
+      }
+
+      toast({
+        description: "Companion created successfully.",
+      });
+
+      // 刷新所有的服务器组件
+      router.refresh();
+      // 跳转到首页
+      router.push("/");
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        description: "Something went wrong. Please try again.",
+      });
+    }
   };
 
   return (
