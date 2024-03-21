@@ -20,11 +20,15 @@ const CompanionIdPage = async ({ params }: CompanionIdPageProps) => {
         id: params.companionId,
       },
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log("companion error", error);
+  }
 
   try {
     categories = await prismadb.category.findMany();
-  } catch (error) {}
+  } catch (error) {
+    console.log("category error", error);
+  }
 
   return (
     <CompanionForm
