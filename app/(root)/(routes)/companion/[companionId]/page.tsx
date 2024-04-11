@@ -1,6 +1,7 @@
 import prismadb from "@/lib/prismadb";
 import CompanionForm from "./components/companion-form";
 import { Category, Companion } from "@prisma/client";
+import { auth, redirectToSignIn } from "@clerk/nextjs";
 
 interface CompanionIdPageProps {
   params: {
@@ -11,6 +12,12 @@ interface CompanionIdPageProps {
 const CompanionIdPage = async ({ params }: CompanionIdPageProps) => {
   // TODO check subscription
 
+  const { userId } = auth();
+
+  if (!userId) {
+    return redirectToSignIn();
+  }
+
   let companion: Companion | null = null;
   let categories: Category[] = [];
 
@@ -18,6 +25,7 @@ const CompanionIdPage = async ({ params }: CompanionIdPageProps) => {
     companion = await prismadb.companion.findUnique({
       where: {
         id: params.companionId,
+        userId,
       },
     });
   } catch (error) {
