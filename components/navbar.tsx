@@ -37,7 +37,7 @@ const Navbar = () => {
           <Sparkles className="h-4 w-4 fill-white text-white"></Sparkles>
         </Button>
         <ModeToggle></ModeToggle>
-        <UserButton></UserButton>
+        <UserButton afterSignOutUrl="/"></UserButton>
       </div>
     </div>
   );
